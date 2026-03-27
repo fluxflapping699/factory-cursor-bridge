@@ -99,6 +99,27 @@ function log(msg) {
   process.stderr.write(`[${ts}] ${msg}\n`);
 }
 
+function summarizeBody(body) {
+  try {
+    return JSON.stringify({
+      model: body.model,
+      stream: body.stream,
+      messages: (body.messages || []).map((m, i) => ({
+        i,
+        role: m?.role,
+        contentType: Array.isArray(m?.content) ? "array" : typeof m?.content,
+        contentPreview: typeof m?.content === "string"
+          ? m.content.slice(0, 120)
+          : Array.isArray(m?.content)
+            ? m.content.map((p) => p?.type || typeof p).slice(0, 8)
+            : null,
+      })),
+    });
+  } catch {
+    return "<unserializable body>";
+  }
+}
+
 function sse(data) {
   return `data: ${JSON.stringify(data)}\n\n`;
 }
@@ -189,6 +210,22 @@ function sanitizeOpenAIMessages(messages = []) {
   return sanitized;
 }
 
+function openAINonStreamToSSE(parsed, fxModel, chatId, res) {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+  const content = parsed?.choices?.[0]?.message?.content || "";
+  res.write(sse(makeChunk(chatId, fxModel, { role: "assistant", content: "" })));
+  if (content) {
+    res.write(sse(makeChunk(chatId, fxModel, { content })));
+  }
+  res.write(sse(makeChunk(chatId, fxModel, { finishReason: "stop" })));
+  res.write("data: [DONE]\n\n");
+  res.end();
+}
+
 function openaiToAnthropic(body) {
   const messages = body.messages || [];
   const systemParts = [];
@@ -251,6 +288,7 @@ function proxyUpstream(route, body, isStream, req, res) {
   const fxModel = body.model;
   const realModel = route.model;
   body.model = realModel;
+  const forceNonStreamForLocalClaude = route.isLocalOpenAICompatAnthropic && isStream;
 
   // Merge extra_args into the body
   if (route.extraArgs && Object.keys(route.extraArgs).length > 0) {
@@ -280,10 +318,20 @@ function proxyUpstream(route, body, isStream, req, res) {
     } else {
       url = new URL(base + "/chat/completions");
     }
-    const openaiBody = {
+    let openaiBody = {
       ...body,
+      stream: forceNonStreamForLocalClaude ? false : body.stream,
       messages: sanitizeOpenAIMessages(body.messages),
     };
+    if (route.isLocalOpenAICompatAnthropic) {
+      openaiBody = {
+        model: realModel,
+        messages: sanitizeOpenAIMessages(body.messages),
+        stream: forceNonStreamForLocalClaude ? false : !!body.stream,
+      };
+      if (body.temperature !== undefined) openaiBody.temperature = body.temperature;
+      if (body.max_tokens !== undefined) openaiBody.max_tokens = body.max_tokens;
+    }
     payload = JSON.stringify(openaiBody);
     headers = {
       "Content-Type": "application/json",
@@ -323,7 +371,7 @@ function proxyUpstream(route, body, isStream, req, res) {
         return;
       }
 
-      if (!isStream) {
+      if (!isStream || forceNonStreamForLocalClaude) {
         let data = "";
         upRes.on("data", (c) => (data += c));
         upRes.on("end", () => {
@@ -331,6 +379,11 @@ function proxyUpstream(route, body, isStream, req, res) {
             let parsed = JSON.parse(data);
             if (route.isAnthropic) {
               parsed = anthropicNonStreamToOpenAI(parsed, fxModel, chatId);
+            } else if (forceNonStreamForLocalClaude) {
+              parsed.model = fxModel;
+              parsed.id = chatId;
+              openAINonStreamToSSE(parsed, fxModel, chatId, res);
+              return;
             } else {
               // Restore fx model name in response
               parsed.model = fxModel;
@@ -579,6 +632,9 @@ const server = createServer(async (req, res) => {
     log(
       `${isStream ? "STREAM" : "BLOCK"} ${requestedModel} -> ${route.displayName} (${route.baseUrl})`
     );
+    if (requestedModel === "fx-claude-opus-4-6") {
+      log(`Claude request summary: ${summarizeBody(body)}`);
+    }
     proxyUpstream(route, body, isStream, req, res);
     return;
   }
